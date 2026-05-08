@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculadora E-commerce PRO</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#0a0a0a;min-height:100vh;display:flex;justify-content:center;padding:24px 12px;font-family:system-ui,-apple-system,sans-serif}
+  .wrap{width:100%;max-width:960px;background:#0f0f0f;border-radius:14px;padding:22px;color:#fff;border:1px solid #222}
+  .hdr{display:flex;align-items:center;gap:14px;margin-bottom:20px;border-bottom:1px solid #2a2a2a;padding-bottom:16px}
+  .logo{width:44px;height:44px;border-radius:10px;border:2px solid #C9A84C;background:#1a1200;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .hdr h1{font-size:18px;font-weight:700;color:#F5D060}
+  .hdr p{font-size:12px;color:#888;margin-top:2px}
+  .tabs{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:20px}
+  .tb{padding:8px 16px;font-size:12px;font-weight:600;border:2px solid #2a2a2a;border-radius:8px;background:#1a1a1a;color:#888;cursor:pointer;transition:all .15s}
+  .tb.on{background:#1a1200;border-color:#C9A84C;color:#F5D060}
+  .tb:hover:not(.on){background:#222;color:#ccc}
+  .panel{display:none}.panel.on{display:block}
+  .cols{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:600px){.cols{grid-template-columns:1fr}}
+  .card{background:#1a1a1a;border:2px solid #2a2a2a;border-radius:10px;padding:18px}
+  .ctitle{font-size:10px;font-weight:700;color:#C9A84C;letter-spacing:.12em;text-transform:uppercase;margin-bottom:13px}
+  .ig{margin-bottom:11px}
+  .ig label{display:block;font-size:12px;color:#aaa;margin-bottom:4px;font-weight:500}
+  .ig input{width:100%;padding:9px 12px;font-size:14px;background:#111;border:2px solid #333;border-radius:7px;color:#fff;outline:none;transition:border-color .15s}
+  .ig input:focus{border-color:#C9A84C}
+  .sep{height:1px;background:#2a2a2a;margin:13px 0}
+  .info-box{background:#111;border:2px solid #1a3a1a;border-radius:8px;padding:11px 13px;margin-bottom:13px}
+  .info-box p{font-size:12px;color:#81C784;line-height:1.7}
+  .info-box strong{color:#F5D060}
+  .ftable{width:100%;border-collapse:collapse;margin-bottom:14px}
+  .ftable td{padding:9px 10px;font-size:13px;border-bottom:1px solid #222}
+  .ftable tr:last-child td{border-bottom:none}
+  .ftable td:first-child{color:#bbb}
+  .ftable td:last-child{text-align:right;font-weight:700;font-size:14px}
+  .ftable tr.total td{background:#111;border-top:2px solid #333}
+  .ftable tr.total td:first-child{color:#F5D060;font-weight:700}
+  .ftable tr.total td:last-child{font-size:16px}
+  .stat3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+  .stat{background:#111;border:2px solid #2a2a2a;border-radius:8px;padding:12px 10px;text-align:center}
+  .stat .sl{font-size:10px;color:#777;margin-bottom:5px;font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+  .stat .sv{font-size:17px;font-weight:800}
+  .alrt{padding:10px 14px;border-radius:7px;font-size:12px;font-weight:600;margin-bottom:13px;border-left:4px solid}
+  .alrt.g{background:#0a1f10;color:#81C784;border-color:#4CAF82}
+  .alrt.r{background:#1f0a0a;color:#EF9A9A;border-color:#EF5350}
+  .alrt.a{background:#1f1400;color:#FFB74D;border-color:#FFA726}
+  .cw{position:relative;width:100%;height:210px;margin-top:14px}
+  .fxrow{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #222;font-size:12px}
+  .fxrow:last-child{border:none}.fxrow span{color:#999}.fxrow b{color:#F5D060}
+  .highlight-box{border:2px solid #C9A84C;border-radius:9px;padding:14px;margin-bottom:13px;text-align:center;background:#111}
+  .highlight-box .hl{font-size:11px;color:#888;margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em;font-weight:600}
+  .highlight-box .hv{font-size:26px;font-weight:800}
+  .highlight-box .hs{font-size:12px;color:#aaa;margin-top:5px}
+  .pct-big{background:#111;border:2px solid #2a2a2a;border-radius:10px;padding:16px;text-align:center;margin-bottom:14px}
+  .pct-big .pl{font-size:11px;color:#888;margin-bottom:6px;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+  .pct-big .pv{font-size:42px;font-weight:800}
+  .pct-big .ps{font-size:12px;color:#aaa;margin-top:4px}
+  .metas{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:13px}
+  .meta-card{background:#111;border:2px solid #2a2a2a;border-radius:8px;padding:12px;text-align:center}
+  .meta-card .ml{font-size:10px;color:#777;margin-bottom:5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+  .meta-card .mv{font-size:18px;font-weight:800}
+  .meta-card .ms{font-size:11px;color:#666;margin-top:3px}
+  .g4{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
+  .cmpcard{background:#1a1a1a;border:2px solid #2a2a2a;border-radius:10px;padding:14px}
+  .cmpcard.best{border-color:#C9A84C;background:#1a1200}
+  .cmpcard .cn{font-size:12px;color:#aaa;margin-bottom:5px;font-weight:600}
+  .cmpcard .cv{font-size:22px;font-weight:800}
+  .cmpcard .cp{font-size:11px;color:#777;margin-top:4px}
+  .bestlabel{font-size:10px;color:#F5D060;font-weight:800;letter-spacing:.08em;margin-bottom:5px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hdr">
+    <div class="logo">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C9A84C" stroke-width="2.5">
+        <path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2 9m12-9l2 9M9 21a1 1 0 100-2 1 1 0 000 2zm10 0a1 1 0 100-2 1 1 0 000 2z"/>
+      </svg>
+    </div>
+    <div><h1>Calculadora E-commerce</h1><p>Precificação e análise de lucro por plataforma</p></div>
+    <div style="margin-left:auto;padding:5px 14px;background:#1a1200;border:2px solid #C9A84C;border-radius:20px;font-size:11px;font-weight:800;color:#F5D060">PRO</div>
+  </div>
+
+  <div class="tabs">
+    <button class="tb on" onclick="showTab('shopee',this)">🟠 Shopee</button>
+    <button class="tb" onclick="showTab('shein',this)">⚫ Shein</button>
+    <button class="tb" onclick="showTab('ml',this)">🟡 Mercado Livre</button>
+    <button class="tb" onclick="showTab('amazon',this)">📦 Amazon</button>
+    <button class="tb" onclick="showTab('ads',this)">📢 Com Ads</button>
+    <button class="tb" onclick="showTab('cmp',this)">⚖️ Comparar</button>
+  </div>
+
+  <!-- SHOPEE -->
+  <div id="panel-shopee" class="panel on">
+    <div class="cols">
+      <div class="card">
+        <div class="ctitle">Dados — Shopee</div>
+        <div class="ig"><label>Preço de venda (R$)</label><input type="number" id="sp-p" value="17" oninput="cSP()"></div>
+        <div class="ig"><label>Custo do produto (R$)</label><input type="number" id="sp-c" value="5.50" oninput="cSP()"></div>
+        <div class="ig"><label>Embalagem (R$)</label><input type="number" id="sp-e" value="0" oninput="cSP()"></div>
+        <div class="ig"><label>Imposto sobre venda (%)</label><input type="number" id="sp-i" value="10" oninput="cSP()"></div>
+        <div class="ig"><label>Lucro desejado (%)</label><input type="number" id="sp-ld" value="20" oninput="cSP()"></div>
+        <div class="sep"></div>
+        <div class="ctitle">Taxas Shopee</div>
+        <div class="fxrow"><span>Até R$80</span><b>20% + R$4,00</b></div>
+        <div class="fxrow"><span>R$80 – R$200</span><b>14% + R$16–20</b></div>
+        <div class="fxrow"><span>Acima R$500</span><b>14% + R$26</b></div>
+      </div>
+      <div class="card">
+        <div class="ctitle">Resultado</div>
+        <div id="sp-hl"></div>
+        <div class="stat3" id="sp-s"></div>
+        <div id="sp-a"></div>
+        <div class="ctitle">Detalhamento</div>
+        <table class="ftable" id="sp-t"></table>
+        <div class="cw"><canvas id="sp-ch"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SHEIN -->
+  <div id="panel-shein" class="panel">
+    <div class="cols">
+      <div class="card">
+        <div class="ctitle">Dados — Shein</div>
+        <div class="ig"><label>Preço de venda (R$)</label><input type="number" id="sh-p" value="60" oninput="cSH()"></div>
+        <div class="ig"><label>Custo do produto (R$)</label><input type="number" id="sh-c" value="31" oninput="cSH()"></div>
+        <div class="ig"><label>Embalagem (R$)</label><input type="number" id="sh-e" value="0" oninput="cSH()"></div>
+        <div class="ig"><label>Comissão Shein (%)</label><input type="number" id="sh-co" value="16" oninput="cSH()"></div>
+        <div class="ig"><label>Imposto sobre venda (%)</label><input type="number" id="sh-i" value="10" oninput="cSH()"></div>
+        <div class="ig"><label>Lucro desejado (%)</label><input type="number" id="sh-ld" value="20" oninput="cSH()"></div>
+      </div>
+      <div class="card">
+        <div class="ctitle">Resultado</div>
+        <div id="sh-hl"></div>
+        <div class="stat3" id="sh-s"></div>
+        <div id="sh-a"></div>
+        <div class="ctitle">Detalhamento</div>
+        <table class="ftable" id="sh-t"></table>
+        <div class="cw"><canvas id="sh-ch"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MERCADO LIVRE -->
+  <div id="panel-ml" class="panel">
+    <div class="cols">
+      <div class="card">
+        <div class="ctitle">Dados — Mercado Livre</div>
+        <div class="info-box">
+          <p>📌 <strong>Imposto</strong> calculado sobre o preço do concorrente<br>
+             📌 <strong>Líquido</strong> = Valor ML − Imposto<br>
+             📌 <strong>Lucro</strong> = Líquido − Custo</p>
+        </div>
+        <div class="ig"><label>Custo do produto (R$)</label><input type="number" id="ml-c" value="24.5" oninput="cML()"></div>
+        <div class="ig"><label>Imposto (%)</label><input type="number" id="ml-i" value="10" oninput="cML()"></div>
+        <div class="ig"><label>Preço do concorrente (R$)</label><input type="number" id="ml-conc" value="57" oninput="cML()"></div>
+        <div class="ig"><label>Calculadora do ML — valor retornado (R$)</label><input type="number" id="ml-val" value="40.09" oninput="cML()"></div>
+        <div class="sep"></div>
+        <div class="ctitle">Metas de preço mínimo</div>
+        <div class="metas" id="ml-metas"></div>
+      </div>
+      <div class="card">
+        <div class="ctitle">Resultado</div>
+        <div class="pct-big" id="ml-pct"></div>
+        <div id="ml-a"></div>
+        <div class="ctitle">Detalhamento</div>
+        <table class="ftable" id="ml-t"></table>
+        <div class="cw"><canvas id="ml-ch"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AMAZON -->
+  <div id="panel-amazon" class="panel">
+    <div class="cols">
+      <div class="card">
+        <div class="ctitle">Dados — Amazon</div>
+        <div class="ig"><label>Preço de venda (R$)</label><input type="number" id="az-p" value="20" oninput="cAZ()"></div>
+        <div class="ig"><label>Custo do produto (R$)</label><input type="number" id="az-c" value="9" oninput="cAZ()"></div>
+        <div class="ig"><label>Tarifa DBA / Frete (R$)</label><input type="number" id="az-t" value="7" oninput="cAZ()"></div>
+        <div class="ig"><label>Comissão Amazon (%)</label><input type="number" id="az-co" value="12" oninput="cAZ()"></div>
+        <div class="ig"><label>Imposto sobre venda (%)</label><input type="number" id="az-i" value="10" oninput="cAZ()"></div>
+      </div>
+      <div class="card">
+        <div class="ctitle">Resultado</div>
+        <div id="az-hl"></div>
+        <div class="stat3" id="az-s"></div>
+        <div id="az-a"></div>
+        <div class="ctitle">Detalhamento</div>
+        <table class="ftable" id="az-t"></table>
+        <div class="cw"><canvas id="az-ch"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADS -->
+  <div id="panel-ads" class="panel">
+    <div class="cols">
+      <div class="card">
+        <div class="ctitle">Dados — Com Ads</div>
+        <div class="ig"><label>Preço de venda (R$)</label><input type="number" id="ad-p" value="105" oninput="cAD()"></div>
+        <div class="ig"><label>Custo do produto (R$)</label><input type="number" id="ad-c" value="57.60" oninput="cAD()"></div>
+        <div class="ig"><label>Total gasto em Ads (R$)</label><input type="number" id="ad-g" value="14" oninput="cAD()"></div>
+        <div class="ig"><label>Unidades vendidas</label><input type="number" id="ad-v" value="3" oninput="cAD()"></div>
+        <div class="ig"><label>Comissão plataforma (%)</label><input type="number" id="ad-co" value="20" oninput="cAD()"></div>
+        <div class="ig"><label>Imposto sobre venda (%)</label><input type="number" id="ad-i" value="5" oninput="cAD()"></div>
+      </div>
+      <div class="card">
+        <div class="ctitle">Resultado</div>
+        <div id="ad-hl"></div>
+        <div class="stat3" id="ad-s"></div>
+        <div id="ad-a"></div>
+        <div class="ctitle">Detalhamento</div>
+        <table class="ftable" id="ad-t"></table>
+        <div class="cw"><canvas id="ad-ch"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- COMPARAR -->
+  <div id="panel-cmp" class="panel">
+    <div class="card" style="margin-bottom:14px">
+      <div class="ctitle">Comparativo por plataforma</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:16px">
+        <div class="ig"><label>Preço de venda (R$)</label><input type="number" id="cm-p" value="100" oninput="cCM()"></div>
+        <div class="ig"><label>Custo do produto (R$)</label><input type="number" id="cm-c" value="40" oninput="cCM()"></div>
+        <div class="ig"><label>Imposto (%)</label><input type="number" id="cm-i" value="10" oninput="cCM()"></div>
+      </div>
+      <div class="cw" style="height:260px"><canvas id="cm-ch"></canvas></div>
+    </div>
+    <div class="g4" id="cm-cards"></div>
+  </div>
+</div>
+
+<script>
+const CH={};
+const CG='#4CAF82',CR='#EF5350',CA='#FFA726',CGD='#C9A84C',CGD2='#F5D060';
+const CB='#64B5F6',CP='#CE93D8',CT='#4DB6AC';
+
+function f(v){return'R$ '+Number(v).toFixed(2).replace('.',',')}
+function pc(v){return Number(v).toFixed(1)+'%'}
+
+function hl(id,lucro,custo,lsc){
+  const cor=lucro>=0?CG:CR;
+  document.getElementById(id).innerHTML=`
+    <div class="highlight-box" style="border-color:${cor}">
+      <div class="hl">Lucro líquido</div>
+      <div class="hv" style="color:${cor}">${f(lucro)}</div>
+      <div class="hs">sobre custo de ${f(custo)} &nbsp;|&nbsp; <span style="color:${lucro>=0?CG:CR};font-weight:800">${pc(lsc)} sobre o custo</span></div>
+    </div>`;
+}
+function stats(id,arr){
+  document.getElementById(id).innerHTML=arr.map(x=>`
+    <div class="stat"><div class="sl">${x.l}</div><div class="sv" style="color:${x.c}">${x.v}</div></div>`).join('');
+}
+function tabela(id,rows){
+  document.getElementById(id).innerHTML=rows.map(r=>`
+    <tr class="${r.total?'total':''}"><td>${r.l}</td><td style="color:${r.c||'#fff'}">${r.v}</td></tr>`).join('');
+}
+function alrt(id,msg,t){
+  document.getElementById(id).innerHTML=`<div class="alrt ${t}">${msg}</div>`;
+}
+function donut(cid,labels,vals,colors){
+  if(CH[cid])CH[cid].destroy();
+  CH[cid]=new Chart(document.getElementById(cid),{
+    type:'doughnut',
+    data:{labels,datasets:[{data:vals.map(v=>Math.max(v,0)),backgroundColor:colors,borderColor:'#1a1a1a',borderWidth:3}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:'#ccc',font:{size:11},padding:10,boxWidth:12,boxHeight:12}}}}
+  });
+}
+
+function cSP(){
+  const p=+document.getElementById('sp-p').value||0,c=+document.getElementById('sp-c').value||0,e=+document.getElementById('sp-e').value||0;
+  const ip=(+document.getElementById('sp-i').value||0)/100,ld=(+document.getElementById('sp-ld').value||20)/100;
+  const tx=p<=80?.20:.14,fx=p<=80?4:p<=100?16:p<=200?20:26;
+  const com=p*tx+fx,imp=p*ip,custo=c+e,lc=p-custo-com-imp,lp=p>0?lc/p*100:0,lsc=custo>0?lc/custo*100:0,pm=(custo+fx)/(1-tx-ip-ld);
+  hl('sp-hl',lc,custo,lsc);
+  stats('sp-s',[{l:'Margem s/ preço',v:pc(lp),c:lp>=(ld*100)?CG:CA},{l:'Preço mínimo',v:f(pm),c:CGD2},{l:'Total taxas',v:f(com+imp),c:CR}]);
+  alrt('sp-a',lp>=(ld*100)?`Meta de ${pc(ld*100)} atingida!`:`Abaixo da meta. Preço mínimo: ${f(pm)}`,lp>=(ld*100)?'g':lp>=0?'a':'r');
+  tabela('sp-t',[{l:`Comissão Shopee (${(tx*100).toFixed(0)}% + R$${fx})`,v:f(com),c:CA},{l:`Imposto (${(ip*100).toFixed(0)}%)`,v:f(imp),c:CR},{l:'Custo produto',v:f(c),c:CB},{l:'Embalagem',v:f(e),c:CT},{l:'Lucro líquido',v:f(lc),c:lc>=0?CG:CR,total:true},{l:'Lucro sobre custo',v:pc(lsc),c:lsc>=0?CG:CR,total:true}]);
+  donut('sp-ch',['Custo','Embalagem','Comissão','Imposto','Lucro'],[c,e,com,imp,Math.max(lc,0)],[CB,CT,CA,CR,CG]);
+}
+
+function cSH(){
+  const p=+document.getElementById('sh-p').value||0,c=+document.getElementById('sh-c').value||0,e=+document.getElementById('sh-e').value||0;
+  const co=(+document.getElementById('sh-co').value||16)/100,ip=(+document.getElementById('sh-i').value||0)/100,ld=(+document.getElementById('sh-ld').value||20)/100;
+  const com=p*co,imp=p*ip,custo=c+e,lc=p-custo-com-imp,lp=p>0?lc/p*100:0,lsc=custo>0?lc/custo*100:0,pm=custo/(1-co-ip-ld);
+  hl('sh-hl',lc,custo,lsc);
+  stats('sh-s',[{l:'Margem s/ preço',v:pc(lp),c:lp>=(ld*100)?CG:CA},{l:'Preço mínimo',v:f(pm),c:CGD2},{l:'Total taxas',v:f(com+imp),c:CR}]);
+  alrt('sh-a',lp>=(ld*100)?`Meta de ${pc(ld*100)} atingida!`:`Abaixo da meta. Preço mínimo: ${f(pm)}`,lp>=(ld*100)?'g':lp>=0?'a':'r');
+  tabela('sh-t',[{l:`Comissão Shein (${(co*100).toFixed(0)}%)`,v:f(com),c:CA},{l:`Imposto (${(ip*100).toFixed(0)}%)`,v:f(imp),c:CR},{l:'Custo produto',v:f(c),c:CB},{l:'Embalagem',v:f(e),c:CT},{l:'Lucro líquido',v:f(lc),c:lc>=0?CG:CR,total:true},{l:'Lucro sobre custo',v:pc(lsc),c:lsc>=0?CG:CR,total:true}]);
+  donut('sh-ch',['Custo','Embalagem','Comissão','Imposto','Lucro'],[c,e,com,imp,Math.max(lc,0)],[CB,CT,CA,CR,CG]);
+}
+
+function cML(){
+  const custo=+document.getElementById('ml-c').value||0,ip=(+document.getElementById('ml-i').value||0)/100;
+  const concorr=+document.getElementById('ml-conc').value||0,mlVal=+document.getElementById('ml-val').value||0;
+  const imposto=concorr*ip,liquido=mlVal-imposto,lucro=liquido-custo;
+  const lscPct=custo>0?(lucro/custo)*100:0,des20=custo/(1-0.20),min10=custo/(1-0.10);
+  const cor=lscPct>=20?CG:lscPct>=10?CA:CR;
+  document.getElementById('ml-pct').innerHTML=`<div class="pl">Porcentagem de Lucro (Lucro ÷ Custo)</div><div class="pv" style="color:${cor}">${pc(lscPct)}</div><div class="ps">Lucro de ${f(lucro)} sobre custo de ${f(custo)}</div>`;
+  alrt('ml-a',lscPct>=20?`Ótimo! Margem de ${pc(lscPct)} sobre o custo.`:lscPct>=10?`Margem de ${pc(lscPct)} — acima do mínimo de 10%, abaixo dos 20%.`:`Margem de ${pc(lscPct)} abaixo do mínimo! Revise o preço.`,lscPct>=20?'g':lscPct>=10?'a':'r');
+  tabela('ml-t',[{l:'Calculadora ML (valor simulador)',v:f(mlVal),c:CGD2},{l:`Imposto (${pc(ip*100)} × concorrente ${f(concorr)})`,v:`− ${f(imposto)}`,c:CR},{l:'Líquido (ML − Imposto)',v:f(liquido),c:CB},{l:'Custo do produto',v:`− ${f(custo)}`,c:CA},{l:'Lucro',v:f(lucro),c:lucro>=0?CG:CR,total:true},{l:'Lucro sobre custo',v:pc(lscPct),c:cor,total:true}]);
+  document.getElementById('ml-metas').innerHTML=`<div class="meta-card"><div class="ml">Desejado 20%</div><div class="mv" style="color:${CA}">${f(des20)}</div><div class="ms">preço mínimo</div></div><div class="meta-card"><div class="ml">Mínimo 10%</div><div class="mv" style="color:${CB}">${f(min10)}</div><div class="ms">preço mínimo</div></div>`;
+  donut('ml-ch',['Custo','Imposto','Lucro'],[custo,imposto,Math.max(lucro,0)],[CA,CR,CG]);
+}
+
+function cAZ(){
+  const p=+document.getElementById('az-p').value||0,c=+document.getElementById('az-c').value||0,ta=+document.getElementById('az-t').value||0;
+  const co=(+document.getElementById('az-co').value||12)/100,ip=(+document.getElementById('az-i').value||0)/100;
+  const com=p*co,imp=p*ip,lb=p-com-ta,lc=lb-c-imp,lp=p>0?lc/p*100:0,lsc=c>0?lc/c*100:0;
+  hl('az-hl',lc,c,lsc);
+  stats('az-s',[{l:'Lucro bruto',v:f(lb),c:lb>=0?CG:CR},{l:'Margem s/ preço',v:pc(lp),c:lp>=15?CG:CA},{l:'Total taxas',v:f(com+ta+imp),c:CR}]);
+  alrt('az-a',lc>=0?`Lucro de ${f(lc)} — margem ${pc(lp)}`:`Prejuízo de ${f(Math.abs(lc))}! Revise o preço.`,lc>=0&&lp>=15?'g':lc>=0?'a':'r');
+  tabela('az-t',[{l:`Comissão Amazon (${(co*100).toFixed(0)}%)`,v:f(com),c:CA},{l:'Tarifa DBA / Frete',v:f(ta),c:CP},{l:`Imposto (${(ip*100).toFixed(0)}%)`,v:f(imp),c:CR},{l:'Custo produto',v:f(c),c:CB},{l:'Lucro líquido',v:f(lc),c:lc>=0?CG:CR,total:true},{l:'Lucro sobre custo',v:pc(lsc),c:lsc>=0?CG:CR,total:true}]);
+  donut('az-ch',['Custo','Comissão','Tarifa','Imposto','Lucro'],[c,com,ta,imp,Math.max(lc,0)],[CB,CA,CP,CR,CG]);
+}
+
+function cAD(){
+  const p=+document.getElementById('ad-p').value||0,c=+document.getElementById('ad-c').value||0,ga=+document.getElementById('ad-g').value||0;
+  const vd=+document.getElementById('ad-v').value||1,co=(+document.getElementById('ad-co').value||20)/100,ip=(+document.getElementById('ad-i').value||0)/100;
+  const com=p*co,imp=p*ip,gpv=vd>0?ga/vd:0,lc=p-com-imp-c-gpv,lp=p>0?lc/p*100:0,lsc=c>0?lc/c*100:0,lt=lc*vd;
+  hl('ad-hl',lc,c,lsc);
+  stats('ad-s',[{l:'Lucro total',v:f(lt),c:lt>=0?CG:CR},{l:'Custo ads/venda',v:f(gpv),c:CA},{l:'Margem s/ preço',v:pc(lp),c:lp>=20?CG:CA}]);
+  alrt('ad-a',lc>=0?`${f(lc)}/venda — ${vd} vendas = ${f(lt)} total`:`Prejuízo! Ads = ${f(gpv)}/conversão.`,lc>=0?(lp>=20?'g':'a'):'r');
+  tabela('ad-t',[{l:`Comissão (${(co*100).toFixed(0)}%)`,v:f(com),c:CA},{l:`Imposto (${(ip*100).toFixed(0)}%)`,v:f(imp),c:CR},{l:'Custo produto',v:f(c),c:CB},{l:'Custo ads por venda',v:f(gpv),c:CP},{l:`Receita total (${vd} vendas)`,v:f(p*vd),c:CGD2},{l:'Lucro por venda',v:f(lc),c:lc>=0?CG:CR,total:true},{l:'Lucro sobre custo',v:pc(lsc),c:lsc>=0?CG:CR,total:true}]);
+  donut('ad-ch',['Custo','Comissão','Imposto','Ads','Lucro'],[c,com,imp,gpv,Math.max(lc,0)],[CB,CA,CR,CP,CG]);
+}
+
+function cCM(){
+  const p=+document.getElementById('cm-p').value||0,c=+document.getElementById('cm-c').value||0,ip=(+document.getElementById('cm-i').value||0)/100;
+  const pls=[{n:'Shopee',fn:()=>{const t=p<=80?.20:.14,fx=p<=80?4:20;return p-(p*t+fx)-p*ip-c},cor:CA},{n:'Shein',fn:()=>p-p*.16-p*ip-c,cor:CT},{n:'Mercado Livre',fn:()=>p-p*.11-p*ip-c,cor:CGD},{n:'Amazon',fn:()=>p-p*.12-7-p*ip-c,cor:CB}];
+  const res=pls.map(x=>({...x,l:x.fn(),pt:p>0?x.fn()/p*100:0,lsc:c>0?x.fn()/c*100:0}));
+  const best=res.reduce((a,b)=>a.l>b.l?a:b);
+  if(CH['cm-ch'])CH['cm-ch'].destroy();
+  CH['cm-ch']=new Chart(document.getElementById('cm-ch'),{type:'bar',data:{labels:res.map(r=>r.n),datasets:[{label:'Lucro líquido (R$)',data:res.map(r=>parseFloat(r.l.toFixed(2))),backgroundColor:res.map(r=>r.l>=0?r.cor:CR),borderRadius:8,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>'R$ '+ctx.raw.toFixed(2)}}},scales:{x:{ticks:{color:'#ccc',font:{size:13}},grid:{color:'#222'}},y:{ticks:{color:'#ccc',callback:v=>'R$'+v},grid:{color:'#222'}}}}});
+  document.getElementById('cm-cards').innerHTML=res.map(r=>`<div class="cmpcard ${r.n===best.n?'best':''}">${r.n===best.n?`<div class="bestlabel">MELHOR OPCAO</div>`:''}<div class="cn">${r.n}</div><div class="cv" style="color:${r.l>=0?CG:CR}">${f(r.l)}</div><div class="cp">${pc(r.pt)} s/ preço</div><div class="cp" style="color:${r.lsc>=0?CG:CR};font-weight:700">${pc(r.lsc)} s/ custo</div></div>`).join('');
+}
+
+function showTab(id,btn){
+  document.querySelectorAll('.panel').forEach(x=>x.classList.remove('on'));
+  document.querySelectorAll('.tb').forEach(x=>x.classList.remove('on'));
+  document.getElementById('panel-'+id).classList.add('on');
+  btn.classList.add('on');
+}
+
+cSP();cSH();cML();cAZ();cAD();cCM();
+</script>
+</body>
+</html>
