@@ -20,7 +20,7 @@ export default async function handler(req, res) {
   try {
     if (req.method === 'GET') {
       try {
-        const file = await get(STATE_PATH);
+        const file = await get(STATE_PATH, { access: 'public' });
         const text = await new Response(file.body).text();
         return send(res, 200, JSON.parse(text));
       } catch (error) {
@@ -40,7 +40,7 @@ export default async function handler(req, res) {
 
       await put(STATE_PATH, JSON.stringify(payload), {
         access: 'public',
-        allowOverwrite: true,
+        overwrite: true,
         contentType: 'application/json',
         cacheControlMaxAge: 60
       });
