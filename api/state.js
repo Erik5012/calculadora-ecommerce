@@ -1,4 +1,4 @@
-import { get, put } from '@vercel/blob';
+import { list, put } from '@vercel/blob';
 
 const STATE_PATH = 'calculadora-ecommerce/state.json';
 
@@ -20,8 +20,12 @@ export default async function handler(req, res) {
   try {
     if (req.method === 'GET') {
       try {
-        const file = await get(STATE_PATH, { access: 'public' });
-        const text = await new Response(file.body).text();
+        const { blobs } = await list({ prefix: STATE_PATH, limit: 1 });
+        const blob = blobs.find((item) => item.pathname === STATE_PATH);
+        if (!blob) return send(res, 200, { values: {}, updatedAt: null });
+        const response = await fetch(blob.url, { cache: 'no-store' });
+        if (!response.ok) return send(res, 200, { values: {}, updatedAt: null });
+        const text = await response.text();
         return send(res, 200, JSON.parse(text));
       } catch (error) {
         if (error?.status === 404 || error?.statusCode === 404) {
@@ -40,7 +44,7 @@ export default async function handler(req, res) {
 
       await put(STATE_PATH, JSON.stringify(payload), {
         access: 'public',
-        overwrite: true,
+        allowOverwrite: true,
         contentType: 'application/json',
         cacheControlMaxAge: 60
       });
