@@ -69,10 +69,6 @@
   .cmpcard .cv{font-size:22px;font-weight:800}
   .cmpcard .cp{font-size:11px;color:#777;margin-top:4px}
   .bestlabel{font-size:10px;color:#F5D060;font-weight:800;letter-spacing:.08em;margin-bottom:5px}
-  .sync{margin-left:auto;padding:6px 14px;background:#1a1200;border:2px solid #C9A84C;border-radius:20px;font-size:11px;font-weight:800;color:#F5D060;white-space:nowrap}
-  .sync.ok{background:#0a1f10;border-color:#4CAF82;color:#81C784}
-  .sync.err{background:#1f0a0a;border-color:#EF5350;color:#EF9A9A}
-  .sync.load{background:#111;border-color:#333;color:#aaa}
 </style>
 </head>
 <body>
@@ -84,7 +80,7 @@
       </svg>
     </div>
     <div><h1>Calculadora E-commerce</h1><p>Precificação e análise de lucro por plataforma</p></div>
-    <div id="sync-status" class="sync load">CONECTANDO</div>
+    <div style="margin-left:auto;padding:5px 14px;background:#1a1200;border:2px solid #C9A84C;border-radius:20px;font-size:11px;font-weight:800;color:#F5D060">PRO</div>
   </div>
 
   <div class="tabs">
@@ -194,7 +190,7 @@
         <div class="stat3" id="az-s"></div>
         <div id="az-a"></div>
         <div class="ctitle">Detalhamento</div>
-        <table class="ftable" id="az-table"></table>
+        <table class="ftable" id="az-t"></table>
         <div class="cw"><canvas id="az-ch"></canvas></div>
       </div>
     </div>
@@ -243,91 +239,9 @@
 const CH={};
 const CG='#4CAF82',CR='#EF5350',CA='#FFA726',CGD='#C9A84C',CGD2='#F5D060';
 const CB='#64B5F6',CP='#CE93D8',CT='#4DB6AC';
-const INPUT_IDS=[
-  'sp-p','sp-c','sp-e','sp-i','sp-ld',
-  'sh-p','sh-c','sh-e','sh-co','sh-i','sh-ld',
-  'ml-c','ml-i','ml-conc','ml-val',
-  'az-p','az-c','az-t','az-co','az-i',
-  'ad-p','ad-c','ad-g','ad-v','ad-co','ad-i',
-  'cm-p','cm-c','cm-i'
-];
-let saveTimer=null,isApplyingState=false;
 
 function f(v){return'R$ '+Number(v).toFixed(2).replace('.',',')}
 function pc(v){return Number(v).toFixed(1)+'%'}
-
-function setSyncStatus(text,type='load'){
-  const el=document.getElementById('sync-status');
-  if(!el)return;
-  el.textContent=text;
-  el.className='sync '+type;
-}
-
-function getState(){
-  return INPUT_IDS.reduce((acc,id)=>{
-    const el=document.getElementById(id);
-    if(el)acc[id]=el.value;
-    return acc;
-  },{});
-}
-
-function applyState(state){
-  if(!state||typeof state!=='object')return;
-  isApplyingState=true;
-  INPUT_IDS.forEach(id=>{
-    const el=document.getElementById(id);
-    if(el&&Object.prototype.hasOwnProperty.call(state,id))el.value=state[id];
-  });
-  isApplyingState=false;
-  recalcAll();
-}
-
-function recalcAll(){
-  cSP();cSH();cML();cAZ();cAD();cCM();
-}
-
-async function loadOnlineState(){
-  try{
-    setSyncStatus('SINCRONIZANDO','load');
-    const res=await fetch('/api/state',{cache:'no-store'});
-    if(!res.ok)throw new Error('Falha ao carregar');
-    const payload=await res.json();
-    applyState(payload.values);
-    setSyncStatus('ONLINE','ok');
-  }catch(err){
-    console.warn('Sincronizacao indisponivel:',err);
-    setSyncStatus('OFFLINE','err');
-  }
-}
-
-function scheduleSave(){
-  if(isApplyingState)return;
-  setSyncStatus('SALVANDO','load');
-  clearTimeout(saveTimer);
-  saveTimer=setTimeout(saveOnlineState,450);
-}
-
-async function saveOnlineState(){
-  try{
-    const res=await fetch('/api/state',{
-      method:'PUT',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({values:getState()})
-    });
-    if(!res.ok)throw new Error('Falha ao salvar');
-    setSyncStatus('SALVO ONLINE','ok');
-  }catch(err){
-    console.warn('Nao foi possivel salvar online:',err);
-    setSyncStatus('NAO SALVO','err');
-  }
-}
-
-function bindOnlineSync(){
-  INPUT_IDS.forEach(id=>{
-    const el=document.getElementById(id);
-    if(el)el.addEventListener('input',scheduleSave);
-  });
-}
 
 function hl(id,lucro,custo,lsc){
   const cor=lucro>=0?CG:CR;
@@ -401,7 +315,7 @@ function cAZ(){
   hl('az-hl',lc,c,lsc);
   stats('az-s',[{l:'Lucro bruto',v:f(lb),c:lb>=0?CG:CR},{l:'Margem s/ preço',v:pc(lp),c:lp>=15?CG:CA},{l:'Total taxas',v:f(com+ta+imp),c:CR}]);
   alrt('az-a',lc>=0?`Lucro de ${f(lc)} — margem ${pc(lp)}`:`Prejuízo de ${f(Math.abs(lc))}! Revise o preço.`,lc>=0&&lp>=15?'g':lc>=0?'a':'r');
-  tabela('az-table',[{l:`Comissão Amazon (${(co*100).toFixed(0)}%)`,v:f(com),c:CA},{l:'Tarifa DBA / Frete',v:f(ta),c:CP},{l:`Imposto (${(ip*100).toFixed(0)}%)`,v:f(imp),c:CR},{l:'Custo produto',v:f(c),c:CB},{l:'Lucro líquido',v:f(lc),c:lc>=0?CG:CR,total:true},{l:'Lucro sobre custo',v:pc(lsc),c:lsc>=0?CG:CR,total:true}]);
+  tabela('az-t',[{l:`Comissão Amazon (${(co*100).toFixed(0)}%)`,v:f(com),c:CA},{l:'Tarifa DBA / Frete',v:f(ta),c:CP},{l:`Imposto (${(ip*100).toFixed(0)}%)`,v:f(imp),c:CR},{l:'Custo produto',v:f(c),c:CB},{l:'Lucro líquido',v:f(lc),c:lc>=0?CG:CR,total:true},{l:'Lucro sobre custo',v:pc(lsc),c:lsc>=0?CG:CR,total:true}]);
   donut('az-ch',['Custo','Comissão','Tarifa','Imposto','Lucro'],[c,com,ta,imp,Math.max(lc,0)],[CB,CA,CP,CR,CG]);
 }
 
@@ -433,9 +347,7 @@ function showTab(id,btn){
   btn.classList.add('on');
 }
 
-bindOnlineSync();
-recalcAll();
-loadOnlineState();
+cSP();cSH();cML();cAZ();cAD();cCM();
 </script>
 </body>
 </html>
